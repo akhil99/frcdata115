@@ -141,15 +141,18 @@ function loadTeamMatchInfoGET(request, res){
       return;
   }
 
-  var matches = [];
+  if(team.indexOf('frc') === -1)team = 'frc' + team;
+
   var sched = ref.child('sched');
 
-  sched.once('value', function(snapshot){
+  sched.orderByChild('team').equalTo(team).once('value', function(snapshot){
+
+    var matches = [];
 
     snapshot.forEach(function(childSnapshot) {
-      var matchInfo = childSnapshot.val();
-      if(matchInfo.team == team && matchInfo.event == event){
-        matches.push(event + ':' + matchInfo.match);
+      var match = childSnapshot.val();
+      if(match.event == event){
+        matches.push(event + ':' + match.match);
       }
     });
 
@@ -162,5 +165,9 @@ function loadTeamMatchInfoGET(request, res){
     res.send(JSON.stringify(matches));
 
   });
+
+}
+
+function getLatestMatchGET(event){
 
 }
