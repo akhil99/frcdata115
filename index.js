@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var tba = require('tba')('frc115', 'Scouting App', '0.1');
 var firebase = require('firebase');
 var twilio = require('twilio')(TWILIO_SID, TWILIO_KEY);
+var wit = require('node-wit');
 
 var ref = new firebase("https://scouting115.firebaseio.com");
 
