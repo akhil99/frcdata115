@@ -8,7 +8,7 @@ var bodyParser = require('body-parser');
 var tba = require('tba')('frc115', 'Scouting App', '0.1');
 var firebase = require('firebase');
 var twilio = require('twilio')(TWILIO_SID, TWILIO_KEY);
-var wit = require('wit-node');
+var wit = require('node-wit');
 
 var ref = new firebase("https://scouting115.firebaseio.com");
 
@@ -205,6 +205,7 @@ function getLastTeamMatchGET(request, res){
 
 function smsAI(request, response){
     var body = request.body.Body;
+    console.log('SMS body: ' + body);
     wit.captureTextIntent(WIT_ACCESS_TOKEN, body, function (err, res) {
          if (err){
              console.log('Wit Error: ', err);
