@@ -249,7 +249,6 @@ function smsNextMatch(team, event, response){
     });
 }
 
-
 function smsLastMatch(team, event, response){
     getTeamLastScore(team, event, function(toSay){
         respond(response, toSay);
@@ -264,11 +263,10 @@ function smsTeamMatches(team, event, response){
             matches.forEach(function(match){
                     matchNos.push(match.split('_')[1]);
             });
+            respond(response, 'Matches for team ' + team + ': ' + matchNos);
         }
-        else respond(response, 'Matches for team ' + team + ': ' + matchNos);
     });
 }
-
 
 function getTeamMatches(team, event, callback){
     console.log('getTeamMatches() ==> getting matches for team: ' + team + ' at ' + event);
@@ -374,6 +372,26 @@ function getTeamLastScore(team, event, callback){
                 callback(info);
             });
         });
+    });
+}
+
+getTeamStats('frc115', '2015utwv', function(data){
+        console.log(data);
+});
+
+function getTeamStats(team, event, callback){
+    team = team.match(/\d+/)[0]; //get only number
+    tba.getEventStats(event, function(error, data){
+        if(error != null)callback('Error getting stats');
+        else{
+            var opr = data.oprs[team];
+            var ccwm = data.ccwms[team];
+            if(opr == null || opr == '' || ccwm == null || ccwm == ''){
+                callback('Error getting data for team ' + team);
+            }else{
+                callback('Team ' + team + ' has an OPR of ' + opr + 'and a CCWM of ' + ccwm);
+            }
+        }
     });
 }
 
