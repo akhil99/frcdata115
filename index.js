@@ -222,8 +222,6 @@ function smsSend(msg, recipient){
         to: recipient,
         from: TWILIO_NUMBER
     }, function(err, msg){});
-
-    })
 }
 
 function respond(response, message) {
