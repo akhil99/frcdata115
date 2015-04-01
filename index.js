@@ -219,6 +219,7 @@ function smsAI(request, response){
              if(intent == 'team_nextmatch')smsNextMatch(team, EVENT_DEFAULT, response);
              if(intent == 'team_lastmatch')smsLastMatch(team, EVENT_DEFAULT, response);
              if(intent == 'team_listmatches')smsTeamMatches(team, EVENT_DEFAULT, response);
+             if(intent == 'teamstats')smsGetTeamStats(team, EVENT_DEFAULT, response);
          }
     });
 }
@@ -265,6 +266,12 @@ function smsTeamMatches(team, event, response){
             });
             respond(response, 'Matches for team ' + team + ': ' + matchNos);
         }
+    });
+}
+
+function smsGetTeamStats(team, event, response){
+    getTeamStats(team, event, function(res){
+        respond(response, res);
     });
 }
 
@@ -374,10 +381,6 @@ function getTeamLastScore(team, event, callback){
         });
     });
 }
-
-getTeamStats('frc115', '2015utwv', function(data){
-        console.log(data);
-});
 
 function getTeamStats(team, event, callback){
     team = team.match(/\d+/)[0]; //get only number
