@@ -217,6 +217,7 @@ function smsAI(request, response){
              var team = res.outcomes[0].entities.team[0].value;
              team = 'frc' + team;
              if(intent == 'team_nextmatch')smsNextMatch(team, EVENT_DEFAULT, sender, response);
+             if(intent == 'team_lastmatch')smsLastMatch(team, EVENT_DEFAULT, sender, response);
          }
     });
 }
@@ -244,6 +245,13 @@ function smsNextMatch(team, event, sender, response){
             var matchNo = match.split('_')[1];
             respond(response, 'The next match for team ' + team + ' is ' + matchNo);
         }
+    });
+}
+
+
+function smsLastMatch(team, event, sender, response){
+    getTeamLastScore(team, event, function(toSay){
+        respond(response, toSay);
     });
 }
 
@@ -325,14 +333,14 @@ function getTeamLastScore(team, event, callback){
 
     getLastTeamMatch(team, event, function(lastMatch){
         if(lastMatch == null){
-            callback(null);
+            callback('No matches found for team ' + team);
             return;
         }
 
         var key = team + ':' + lastMatch;
         ref.child('sched').orderByKey().equalTo(key).once('value', function(sched){
             if(sched.val() == null){
-                res.status(404).send('Error');
+                callback('Error');
                 return;
             }
 
@@ -340,7 +348,7 @@ function getTeamLastScore(team, event, callback){
 
             ref.child('scores').child(lastMatch).once('value', function(snapshot){
                 if(snapshot.val() == null){
-                    res.status(404).send('No scores found');
+                    callback('No scores found');
                     return;
                 }
 
