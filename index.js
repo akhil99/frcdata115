@@ -215,7 +215,7 @@ function smsAI(request, response){
              console.log('Wit data: ' + JSON.stringify(res));
              var intent = res.outcomes[0].intent;
              var team = res.outcomes[0].entities.team[0].value;
-             if(team.indexOf('frc') == -1)team = 'frc' + team;
+             team = 'frc' + team;
              if(intent == 'team_nextmatch')smsNextMatch(team, EVENT_DEFAULT, sender, response);
          }
     });
