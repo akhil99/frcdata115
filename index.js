@@ -241,7 +241,7 @@ function smsNextMatch(team, event, sender, response){
         }
         else{
             var matchNo = match.split('_')[1];
-            respond('The next match for team ' + team ' is ' + matchNo);
+            respond('The next match for team ' + team + ' is ' + matchNo);
         }
     });
 }
