@@ -205,17 +205,16 @@ function getLastTeamMatchGET(request, res){
 
 function smsAI(request, response){
     var body = request.body.Body;
-    console.log('SMS body: ' + body);
+    var sender = request.body.From;
     wit.captureTextIntent(WIT_ACCESS_TOKEN, body, function (err, res) {
          if (err){
              console.log('Wit Error: ', err);
          }else{
              console.log('Wit data: ' + res);
              var intent = res.outcomes.intent;
-             if(intent == 'team_nextmatch')respond(response, 'next');
+             if(intent == 'team_nextmatch')smsSend('next', sender);
          }
     });
-    respond(response, 'hello!');
 }
 
 function smsSend(msg, recipient){
