@@ -216,8 +216,9 @@ function smsAI(request, response){
              var intent = res.outcomes[0].intent;
              var team = res.outcomes[0].entities.team[0].value;
              team = 'frc' + team;
-             if(intent == 'team_nextmatch')smsNextMatch(team, EVENT_DEFAULT, sender, response);
-             if(intent == 'team_lastmatch')smsLastMatch(team, EVENT_DEFAULT, sender, response);
+             if(intent == 'team_nextmatch')smsNextMatch(team, EVENT_DEFAULT, response);
+             if(intent == 'team_lastmatch')smsLastMatch(team, EVENT_DEFAULT, response);
+             if(intent == 'team_listmatches')smsTeamMatches(team, EVENT_DEFAULT, response);
          }
     });
 }
@@ -236,7 +237,7 @@ function respond(response, message) {
     response.send(toSend);
 }
 
-function smsNextMatch(team, event, sender, response){
+function smsNextMatch(team, event, response){
     getNextTeamMatch(team, event, function(match){
         if(match == null){
             respond(response, 'No next match could be found');
@@ -249,9 +250,16 @@ function smsNextMatch(team, event, sender, response){
 }
 
 
-function smsLastMatch(team, event, sender, response){
+function smsLastMatch(team, event, response){
     getTeamLastScore(team, event, function(toSay){
         respond(response, toSay);
+    });
+}
+
+function smsTeamMatches(team, event, response){
+    getTeamMatches(team, event, function(matches){
+        if(matches.length == 0)respond(response, 'No matches could be found for team ' + team);
+        else respond(response, 'Matches for team ' + team + ': ' + matches);
     });
 }
 
