@@ -211,10 +211,12 @@ function smsAI(request, response){
              console.log('Wit Error: ', err);
          }else{
              console.log('Wit data: ' + JSON.stringify(res));
-             var intent = res.outcomes.intent;
-             if(intent == 'team_nextmatch')smsSend('next', sender);
+             var intent = res.outcomes[0].intent;
+             var team = res.outcomes[0].entities.team[0].value;
+             if(intent == 'team_nextmatch')smsSend('next match for team ' + team, sender);
          }
     });
+    respond(response, 'hi');
 }
 
 function smsSend(msg, recipient){
