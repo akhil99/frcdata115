@@ -1,7 +1,9 @@
 var WIT_ACCESS_TOKEN = process.env.WIT_TOKEN || '';
 var TWILIO_SID = process.env.TWILIO_SID || '';
 var TWILIO_KEY = process.env.TWILIO_KEY || '';
-var TWILIO_NUMBER = '+14085121069'
+var TWILIO_NUMBER = '+14085121069';
+
+var EVENT_DEFAULT = '2015utwv';
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -213,10 +215,9 @@ function smsAI(request, response){
              console.log('Wit data: ' + JSON.stringify(res));
              var intent = res.outcomes[0].intent;
              var team = res.outcomes[0].entities.team[0].value;
-             if(intent == 'team_nextmatch')smsSend('next match for team ' + team, sender);
+             if(intent == 'team_nextmatch')smsNextMatch(team, EVENT_DEFAULT, sender, response);
          }
     });
-    respond(response, 'hi');
 }
 
 function smsSend(msg, recipient){
@@ -233,8 +234,16 @@ function respond(response, message) {
     response.send(toSend);
 }
 
-function smsNextMatch(team, event, sender){
-
+function smsNextMatch(team, event, sender, response){
+    getNextTeamMatch(team, event, function(match){
+        if(match == null){
+            respond('No next match could be found');
+        }
+        else{
+            var matchNo = match.split('_')[1];
+            respond('The next match for team ' + team ' is ' + matchNo);
+        }
+    });
 }
 
 function getTeamMatches(team, event, callback){
