@@ -215,6 +215,7 @@ function smsAI(request, response){
              console.log('Wit data: ' + JSON.stringify(res));
              var intent = res.outcomes[0].intent;
              var team = res.outcomes[0].entities.team[0].value;
+             if(team.indexOf('frc') == -1)team = 'frc' + team;
              if(intent == 'team_nextmatch')smsNextMatch(team, EVENT_DEFAULT, sender, response);
          }
     });
@@ -237,11 +238,11 @@ function respond(response, message) {
 function smsNextMatch(team, event, sender, response){
     getNextTeamMatch(team, event, function(match){
         if(match == null){
-            respond('No next match could be found');
+            respond(response, 'No next match could be found');
         }
         else{
             var matchNo = match.split('_')[1];
-            respond('The next match for team ' + team + ' is ' + matchNo);
+            respond(response, 'The next match for team ' + team + ' is ' + matchNo);
         }
     });
 }
