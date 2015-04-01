@@ -259,9 +259,16 @@ function smsLastMatch(team, event, response){
 function smsTeamMatches(team, event, response){
     getTeamMatches(team, event, function(matches){
         if(matches.length == 0)respond(response, 'No matches could be found for team ' + team);
-        else respond(response, 'Matches for team ' + team + ': ' + matches);
+        else{
+            var matchNos = [];
+            matches.forEach(function(match){
+                    matchNos.push(match.split('_')[1]);
+            });
+        }
+        else respond(response, 'Matches for team ' + team + ': ' + matchNos);
     });
 }
+
 
 function getTeamMatches(team, event, callback){
     console.log('getTeamMatches() ==> getting matches for team: ' + team + ' at ' + event);
