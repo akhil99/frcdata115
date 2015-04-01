@@ -37,7 +37,7 @@ app.get('/team-nextmatch', getNextTeamMatchGET);
 
 app.get('/team-lastmatch', getLastTeamMatchGET);
 
-app.get('/sms-recvai', smsAI);
+app.post('/sms-recvai', smsAI);
 
 app.listen(app.get('port'), function() {
   console.log("HEY!!! Node app is running at localhost:" + app.get('port'));
