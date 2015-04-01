@@ -12,7 +12,7 @@ var firebase = require('firebase');
 var twilio = require('twilio')(TWILIO_SID, TWILIO_KEY);
 var wit = require('node-wit');
 
-var ref = new firebase("https://scouting115.firebaseio.com");
+var ref = new firebase('https://scouting115.firebaseio.com');
 
 var app = express();
 app.use(bodyParser.json());
@@ -42,7 +42,7 @@ app.get('/team-lastmatch', getLastTeamMatchGET);
 app.post('/sms-recvai', smsAI);
 
 app.listen(app.get('port'), function() {
-  console.log("HEY!!! Node app is running at localhost:" + app.get('port'));
+  console.log('HEY!!! Node app is running at localhost:' + app.get('port'));
 });
 
 function loadSchedulePOST(request, res){
@@ -381,17 +381,38 @@ getTeamStats('frc115', '2015utwv', function(data){
 
 function getTeamStats(team, event, callback){
     team = team.match(/\d+/)[0]; //get only number
+
     tba.getEventStats(event, function(error, data){
-        if(error != null)callback('Error getting stats');
-        else{
-            var opr = data.oprs[team];
-            var ccwm = data.ccwms[team];
-            if(opr == null || opr == '' || ccwm == null || ccwm == ''){
-                callback('Error getting data for team ' + team);
-            }else{
-                callback('Team ' + team + ' has an OPR of ' + opr + 'and a CCWM of ' + ccwm);
+        var opr = data.oprs[team];
+        var ccwm = data.ccwms[team];
+
+        tba.getEventRankings('2015utwv', function(err, rankings_list){
+            for(var rank = 0; rank < rankings_list.length; rank++){
+                if(rankings_list[rank][1] == team){
+                    var data = rankings_list[rank];
+                    var qualAvg = data[2];
+                    var auto = data[3];
+                    var container = data[4];
+                    var coop = data[5];
+                    var litter = data[6];
+                    var tote = data[7];
+                    var played = data[8];
+                    var info = 'Info for team ' + team + ': ' +
+                        'Quals Avg: ' + qualAvg +
+                        ', Auton: ' + auto +
+                        ', Container: ' + container +
+                        ', Coop: ' + coop +
+                        ', Litter: ' + litter +
+                        ', Tote: ' + tote +
+                        ', Games Played: ' + played +
+                        ', OPR: ' + opr +
+                        ', CCWM: ' + ccwm;
+                    callback(info);
+                    return;
+                }
             }
-        }
+            callback('Error getting data for team ' + team);
+        });
     });
 }
 
