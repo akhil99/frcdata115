@@ -210,7 +210,7 @@ function smsAI(request, response){
          if (err){
              console.log('Wit Error: ', err);
          }else{
-             console.log('Wit data: ' + res);
+             console.log('Wit data: ' + JSON.stringify(res));
              var intent = res.outcomes.intent;
              if(intent == 'team_nextmatch')smsSend('next', sender);
          }
