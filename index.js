@@ -208,15 +208,27 @@ function getLastTeamMatchGET(request, res){
 }
 
 function tbaWebHook(request, response){
-
     var index = [];
     for(var x in request.body){
         index.push(x);
         console.log('x: ' + x + ' endx');
     }
     var data = JSON.parse(index[0]);
-    console.log(data);
 
+    if(data.message_type == 'match_score'){
+        response.send(tbaMatchScore(data));
+    }
+
+}
+
+function tbaMatchScore(data){
+    var event = data.message_data.event_key;
+    var match = data.message_data.match.key;
+    if(event == null || match === null)return('Error saving');
+    ref.child('events').child(event).set({
+        lastMatch: match
+    });
+    return ('Updated matches');
 }
 
 function smsAI(request, response){
