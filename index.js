@@ -210,16 +210,12 @@ function getLastTeamMatchGET(request, res){
 function tbaWebHook(request, response){
 
     var index = [];
-    console.log('body: ' + request.body + 'endbody');
-    console.log('type of body: ' + typeof request.body);
-    console.log('body message type: ' + request.body[0].message_type);
     for(var x in request.body){
         index.push(x);
-        console.log('type of x: ' + typeof x);
+        console.log('x: ' + x + ' endx');
     }
     var data = JSON.parse(index[0]);
     console.log(data);
-    console.log('typeof data: ' + typeof data);
 
 }
 
