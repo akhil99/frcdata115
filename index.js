@@ -229,7 +229,17 @@ function tbaMatchScore(data){
     ref.child('events').child(event).set({
         lastMatch: match
     });
+    saveScore(data);
     return ('Updated matches');
+}
+
+function saveScore(data){
+    var match = data.message_data.match.key;
+    ref.child('scores').child(match).set({
+        b: data.message_data.match.alliances.blue.score,
+        r: data.message_data.match.alliances.red.score,
+        breakdown: data.message_data.match.score_breakdown
+    });
 }
 
 function smsAI(request, response){
