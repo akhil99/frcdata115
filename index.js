@@ -208,10 +208,14 @@ function getLastTeamMatchGET(request, res){
 }
 
 function tbaWebHook(request, response){
-    console.log('request: ' + request);
-    console.log('request body: ' + request.body);
-    console.log('body JSON: ' + JSON.stringify(request.body));
-    response.send(':)');
+
+    var index = [];
+    for(var x in req.body){
+        index.push(x);
+    }
+    var data = JSON.parse(index[0]);
+    console.log(data);
+
 }
 
 function smsAI(request, response){
