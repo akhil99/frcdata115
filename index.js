@@ -41,6 +41,8 @@ app.get('/team-lastmatch', getLastTeamMatchGET);
 
 app.post('/sms-recvai', smsAI);
 
+app.post('/tba-webhook', tbaWebHook);
+
 app.listen(app.get('port'), function() {
   console.log('HEY!!! Node app is running at localhost:' + app.get('port'));
 });
@@ -203,6 +205,11 @@ function getLastTeamMatchGET(request, res){
     }
 
 
+}
+
+function tbaWebHook(request, response){
+    console.log('request: ' + JSON.stringify(request.body));
+    response.send(':)');
 }
 
 function smsAI(request, response){
