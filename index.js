@@ -522,3 +522,28 @@ function getMatchVal(match){
     console.log('getMatchVal() ==> the value of match ' + match + ' is ' + val);
     return val;
 }
+
+
+function getTeamAndComments(body) {
+    body = body.trim();
+
+    if(!isNaN(body) && body !== '') {
+        console.log('body is a number');
+        return { team: parseInt(body), msg: '' }
+    }
+
+    var comma = body.indexOf(',');
+    team = body.substr(0, comma);
+    if(!isNaN(team) && team !== '') {
+        console.log("team is a number");
+        return{
+            team: parseInt(team),
+            msg: body.substr(comma + 1).trim()
+        }
+    }
+
+    return {
+        team: null,
+        msg: null
+    }
+}
