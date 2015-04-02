@@ -15,7 +15,6 @@ var wit = require('node-wit');
 var ref = new firebase('https://scouting115.firebaseio.com');
 
 var app = express();
-//app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
@@ -220,12 +219,18 @@ function saveScore(data){
 function smsAI(request, response){
     var body = request.body.Body;
     var sender = request.body.From;
+    console.log('body.body: ' + body);
     wit.captureTextIntent(WIT_ACCESS_TOKEN, body, function (err, res) {
          if (err){
-             console.log('Wit Error: ', err);
+             console.log('Wit err: ' + err);
+             respond(response, 'Sorry, I did not understand what you were asking for');
          }else{
              console.log('Wit data: ' + JSON.stringify(res));
              var intent = res.outcomes[0].intent;
+             if(res.outcomes[0].entities.team == null || res.outcomes[0].entities.team.length == 0){
+                 respond(response, 'Sorry, I did not understand what you were asking for');
+                 return;
+             }
              var team = res.outcomes[0].entities.team[0].value;
              team = 'frc' + team;
              if(intent == 'team_nextmatch')smsNextMatch(team, EVENT_DEFAULT, response);
