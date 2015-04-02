@@ -222,7 +222,7 @@ function tbaWebHook(request, response){
 }
 
 function tbaMatchScore(data){
-    var event = data.message_data.event_key;
+    var event = data.message_data.match.event_key;
     var match = data.message_data.match.key;
     console.log('event: ' + event + ', match: ' + match);
     if(event == null || match === null)return('Error saving');
