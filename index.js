@@ -483,7 +483,7 @@ function handleMedia(sender, body, requestBody, numMedia) {
 }
 
 function addImage(team, msg, url, sender) {
-    myFirebaseRef.child('pitscout/images').push({
+    ref.child('pitscout/images').push({
         'url': url,
         'msg': msg,
         'sender': sender,
