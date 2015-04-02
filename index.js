@@ -220,6 +220,12 @@ function smsAI(request, response){
     var body = request.body.Body;
     var sender = request.body.From;
     console.log('body.body: ' + body);
+
+    if(numMedia > 0){
+        respond(response, handleMedia(sender, body, request.body, numMedia));
+        return;
+    }
+
     wit.captureTextIntent(WIT_ACCESS_TOKEN, body, function (err, res) {
          if (err){
              console.log('Wit err: ' + err);
@@ -231,22 +237,13 @@ function smsAI(request, response){
                  respond(response, 'Sorry, I did not understand what you were asking for');
                  return;
              }
-             var team = res.outcomes[0].entities.team[0].value;
-             team = 'frc' + team;
+             var team = 'frc' + res.outcomes[0].entities.team[0].value;
              if(intent == 'team_nextmatch')smsNextMatch(team, EVENT_DEFAULT, response);
              if(intent == 'team_lastmatch')smsLastMatch(team, EVENT_DEFAULT, response);
              if(intent == 'team_listmatches')smsTeamMatches(team, EVENT_DEFAULT, response);
              if(intent == 'teamstats')smsGetTeamStats(team, EVENT_DEFAULT, response);
          }
     });
-}
-
-function smsSend(msg, recipient){
-    twilio.messages.create({
-        body: msg,
-        to: recipient,
-        from: TWILIO_NUMBER
-    }, function(err, msg){});
 }
 
 function respond(response, message) {
@@ -465,6 +462,31 @@ function getTeamStats(team, event, callback){
             }
             callback('Error getting data for team ' + team);
         });
+    });
+}
+
+function handleMedia(sender, body, requestBody, numMedia) {
+    var teamAndComments = getTeamAndComments(body);
+    var team = teamAndComments.team;
+    var msg = teamAndComments.msg;
+
+    if(team == null || msg == null) {
+        return 'Please use the following format (note the comma):\n[team #], [comments, if any]';
+    }
+
+    for(i = 0; i < numMedia; i++) {
+        addImage(team, msg, requestBody['MediaUrl' + i], sender);
+    }
+    return 'Media successfully saved!';
+
+}
+
+function addImage(team, msg, url, sender) {
+    myFirebaseRef.child('pitscout/images').push({
+        'url': url,
+        'msg': msg,
+        'sender': sender,
+        'team': team
     });
 }
 
