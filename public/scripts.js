@@ -11,7 +11,7 @@ ref.child('pitscout/images').on("child_added", function(snapshot) {
   console.log(img.msg);
 
   var html =
-  '<div class ="mediaItem"><img src="' + img.url + '" width="400px" height="250px"/>' +
+  '<div class ="mediaItem"><img src="' + img.url + '" width="450px"/>' +
   '<h4 class="teamcaption">Team ' + img.team + '</h4><h4 class="caption">' + img.msg + '</h4></div>'
 
   container.append(html);
