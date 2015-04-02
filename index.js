@@ -57,35 +57,7 @@ function loadSchedulePOST(request, res){
       return;
   }
 
-  tba.getEventMatches(event, function(error, data){
-      var sched = ref.child('sched');
-      for(var i in data){
-        var match = data[i];
-        var matchNo = match.key;
-        var blue = match.alliances.blue.teams;
-        var red = match.alliances.red.teams;
-        for(var b in blue){
-          var team = blue[b];
-          var id = team + ':' + matchNo;
-          sched.child(id).set({
-              alliance: 'b',
-              event: event,
-              match: matchNo,
-              team: team,
-          });
-        }
-        for(var r in red){
-          var team = red[r];
-          var id = team + ':' + matchNo;
-          sched.child(id).set({
-              alliance: 'r',
-              event: event,
-              match: matchNo,
-              team: team,
-          });
-        }
-      }
-  });
+  loadSchedule(event);
 
   res.send('Attempted loading data from ' + event + '!');
 
@@ -217,6 +189,9 @@ function tbaWebHook(request, response){
 
     if(data.message_type == 'match_score'){
         response.send(tbaMatchScore(data));
+    }else if(data.message_type == 'schedule_updated'){
+        loadSchedule(data.message_data.event_key);
+        response.send('attempted updating schedule');
     }
 
 }
@@ -309,6 +284,38 @@ function smsTeamMatches(team, event, response){
 function smsGetTeamStats(team, event, response){
     getTeamStats(team, event, function(res){
         respond(response, res);
+    });
+}
+
+function loadSchedule(event){
+    tba.getEventMatches(event, function(error, data){
+        var sched = ref.child('sched');
+        for(var i in data){
+          var match = data[i];
+          var matchNo = match.key;
+          var blue = match.alliances.blue.teams;
+          var red = match.alliances.red.teams;
+          for(var b in blue){
+            var team = blue[b];
+            var id = team + ':' + matchNo;
+            sched.child(id).set({
+                alliance: 'b',
+                event: event,
+                match: matchNo,
+                team: team,
+            });
+          }
+          for(var r in red){
+            var team = red[r];
+            var id = team + ':' + matchNo;
+            sched.child(id).set({
+                alliance: 'r',
+                event: event,
+                match: matchNo,
+                team: team,
+            });
+          }
+        }
     });
 }
 
