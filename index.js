@@ -15,9 +15,9 @@ var wit = require('node-wit');
 var ref = new firebase('https://scouting115.firebaseio.com');
 
 var app = express();
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-  extended: true
+  extended: false
 }));
 
 app.set('port', (process.env.PORT || 5000));
@@ -210,10 +210,10 @@ function getLastTeamMatchGET(request, res){
 function tbaWebHook(request, response){
 
     var index = [];
-    console.log(request.body);
+    console.log('body: ' + request.body);
     for(var x in request.body){
         index.push(x);
-        console.log(x);
+        console.log('x: ' + x);
     }
     var data = JSON.parse(index[0]);
     console.log(data);
