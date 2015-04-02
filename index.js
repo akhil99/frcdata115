@@ -208,8 +208,7 @@ function getLastTeamMatchGET(request, res){
 }
 
 function tbaWebHook(request, response){
-    console.log('request: ' + JSON.stringify(request.body));
-    console.log('request_type: ' + request.body.message_type);
+    console.log('request: ' + request.body);
     response.send(':)');
 }
 
