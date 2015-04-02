@@ -219,6 +219,7 @@ function saveScore(data){
 function smsAI(request, response){
     var body = request.body.Body;
     var sender = request.body.From;
+    var numMedia = request.body.NumMedia;
     console.log('body.body: ' + body);
 
     if(numMedia > 0){
