@@ -42,6 +42,8 @@ app.post('/sms-recvai', smsAI);
 
 app.post('/tba-webhook', tbaWebHook);
 
+app.use('/pitscout-view/', express.static(__dirname + '/public'));
+
 app.listen(app.get('port'), function() {
   console.log('HEY!!! Node app is running at localhost:' + app.get('port'));
 });

@@ -1,0 +1,11 @@
+body{
+    color: #FFC107;
+    background: #5E35B1;
+}
+
+.mediaItem{
+    padding: 20px;
+    margin: 20px;
+    background: #7E57C2;
+    text-align: center;
+}
