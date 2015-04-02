@@ -2,7 +2,7 @@ var WIT_ACCESS_TOKEN = process.env.WIT_TOKEN || '';
 var TWILIO_SID = process.env.TWILIO_SID || '';
 var TWILIO_KEY = process.env.TWILIO_KEY || '';
 var TWILIO_NUMBER = '+14085121069';
-
+var CLOUDINARY_SECRET = process.env.CLOUDINARY_SECRET || '';
 var EVENT_DEFAULT = '2015utwv';
 
 var express = require('express');
@@ -11,6 +11,13 @@ var tba = require('tba')('frc115', 'Scouting App', '0.1');
 var firebase = require('firebase');
 var twilio = require('twilio')(TWILIO_SID, TWILIO_KEY);
 var wit = require('node-wit');
+var cloudinary = require('cloudinary');
+
+cloudinary.config({
+  cloud_name: 'theakhil',
+  api_key: '884819557627848',
+  api_secret: CLOUDINARY_SECRET
+});
 
 var ref = new firebase('https://scouting115.firebaseio.com');
 
@@ -43,6 +50,8 @@ app.post('/sms-recvai', smsAI);
 app.post('/tba-webhook', tbaWebHook);
 
 app.use('/pitscout-view/', express.static(__dirname + '/public'));
+
+app.post('/img-save', saveImagesPOST);
 
 app.listen(app.get('port'), function() {
   console.log('HEY!!! Node app is running at localhost:' + app.get('port'));
@@ -548,4 +557,33 @@ function getTeamAndComments(body) {
         team: null,
         msg: null
     }
+}
+
+function saveImagesPOST(request, response){
+    ref.child('pitscout/images').on('child_added', function(data){
+        if(data.val() == null){
+            response.send('error');
+            return;
+        }
+
+        var url = data.val().url;
+        var alt = data.val().new_url;
+        var cloud = data.val().cloudinary_url;
+        if(url == null || url == '')url = alt;
+        if(url == null || url == '')return;
+
+        data.ref().child('new_url').remove();
+
+        if(cloud != null && cloud != '')return;
+
+        cloudinary.uploader.upload(url, function(result) {
+            var newUrl = result.url;
+            console.log(data.ref().toString());
+            data.ref().update({
+                cloudinary_url: newUrl
+            });
+        });
+    });
+
+    response.send('attempted to reply');
 }
