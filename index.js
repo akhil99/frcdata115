@@ -369,7 +369,7 @@ function smsGetTeamStats(team, event, response){
 function smsGetMatchInfo(match, response){
     match += EVENT_DEFAULT + '_';
     getMatchInfo(match, function(red, blue){
-        if(red == null || blue)respond(response, 'Couldn\'t find match info');
+        if(red == null || blue == null)respond(response, 'Couldn\'t find match info');
         else respond(response, 'Info for match ' + match + ': red alliance: ' + red + ', blue: ' + blue);
     });
 }
