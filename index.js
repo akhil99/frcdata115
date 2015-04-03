@@ -519,8 +519,17 @@ function getTeamStats(team, event, callback){
     team = team.match(/\d+/)[0]; //get only number
 
     tba.getEventStats(event, function(error, data){
+
+        if(data == null){
+            callback('Error retrieving stats data from TBA. Note that it might not have been published yet.');
+        }
+
         var opr = data.oprs[team];
         var ccwm = data.ccwms[team];
+
+        if(opr == null || ccwm == null){
+            callback('Error retrieving stats data from TBA. Note that it might not have been published yet.');
+        }
 
         tba.getEventRankings('2015utwv', function(err, rankings_list){
             for(var rank = 0; rank < rankings_list.length; rank++){
