@@ -603,6 +603,7 @@ function getTeamStats(team, event, callback){
             for(var rank = 0; rank < rankings_list.length; rank++){
                 if(rankings_list[rank][1] == team){
                     var data = rankings_list[rank];
+                    var teamRank = data[0];
                     var qualAvg = data[2];
                     var auto = data[3];
                     var container = data[4];
@@ -611,6 +612,7 @@ function getTeamStats(team, event, callback){
                     var tote = data[7];
                     var played = data[8];
                     var info = 'Info for team ' + team + ': ' +
+                        'Rank: ' + teamRank + 
                         'Quals Avg: ' + qualAvg +
                         ', Auton: ' + auto +
                         ', Container: ' + container +
