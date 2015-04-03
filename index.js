@@ -308,6 +308,17 @@ function smsAI(request, response){
          }else{
              console.log('Wit data: ' + JSON.stringify(res));
              var intent = res.outcomes[0].intent;
+
+             if(intent == 'match_info'){
+                 var match = res.outcomes[0].entities.match;
+                 if(match == null || match.length == 0){
+                     respond(response, 'Sorry, I did not understand what you were asking for');
+                     return;
+                 }
+                 smsGetMatchInfo(match, response);
+                 return;
+             }
+
              if(res.outcomes[0].entities.team == null || res.outcomes[0].entities.team.length == 0){
                  respond(response, 'Sorry, I did not understand what you were asking for');
                  return;
@@ -317,14 +328,6 @@ function smsAI(request, response){
              if(intent == 'team_lastmatch')smsLastMatch(team, EVENT_DEFAULT, response);
              if(intent == 'team_listmatches')smsTeamMatches(team, EVENT_DEFAULT, response);
              if(intent == 'teamstats')smsGetTeamStats(team, EVENT_DEFAULT, response);
-             if(intent == 'match_info'){
-                 var match = res.outcomes[0].entities.match;
-                 if(match == null || match.length == 0){
-                     respond(response, 'Sorry, I did not understand what you were asking for');
-                     return;
-                 }
-                 smsGetMatchInfo(match, response);
-             }
          }
     });
 }
@@ -348,7 +351,7 @@ function smsLastMatch(team, event, response){
 }
 
 function smsTeamMatches(team, event, response){
-    getTeamMatches(team, event, function(matches){
+    getTeamMatches(team, event, function(matches){l
         if(matches.length == 0)respond(response, 'No matches could be found for team ' + team);
         else{
             var formatted = readableMatches(matches);
