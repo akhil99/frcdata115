@@ -317,6 +317,14 @@ function smsAI(request, response){
              if(intent == 'team_lastmatch')smsLastMatch(team, EVENT_DEFAULT, response);
              if(intent == 'team_listmatches')smsTeamMatches(team, EVENT_DEFAULT, response);
              if(intent == 'teamstats')smsGetTeamStats(team, EVENT_DEFAULT, response);
+             if(intent == 'match_info'){
+                 var match = res.outcomes[0].entities.match;
+                 if(match == null || match.length == 0){
+                     respond(response, 'Sorry, I did not understand what you were asking for');
+                     return;
+                 }
+                 smsGetMatchInfo(match, response);
+             }
          }
     });
 }
@@ -352,6 +360,14 @@ function smsTeamMatches(team, event, response){
 function smsGetTeamStats(team, event, response){
     getTeamStats(team, event, function(res){
         respond(response, res);
+    });
+}
+
+function smsGetMatchInfo(match, response){
+    match += EVENT_DEFAULT + '_';
+    getMatchInfo(match, function(red, blue){
+        if(red == null || blue)respond(response, 'Couldn\'t find match info');
+        else respond(response, 'Info for match ' + match + ': red alliance: ' + red + ', blue: ' + blue);
     });
 }
 
@@ -523,6 +539,27 @@ function getAlliancePartners(team, match, callback){
 
             callback(teams, opp);
         });
+    });
+}
+
+function getMatchInfo(match, callback){
+    ref.child('sched').orderByChild('match').equalTo(match).once('value', function(snapshot){
+        var red = [];
+        var blue = [];
+        snapshot.forEach(function(child){
+            var data = child.val();
+            if(data == null){
+                return;
+            }
+            if(data.alliance == 'r'){
+                red.push(data.team);
+                console.log('red');
+            }else {
+                blue.push(data.team);
+                console.log('blue');
+            }
+        });
+        callback(red, blue);
     });
 }
 
