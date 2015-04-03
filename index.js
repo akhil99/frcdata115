@@ -5,6 +5,8 @@ var TWILIO_NUMBER = '+14085121069';
 var CLOUDINARY_SECRET = process.env.CLOUDINARY_SECRET || '';
 var EVENT_DEFAULT = '2015utwv';
 
+var EVENTS = ['2015utwv', '2015casj'];
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var tba = require('tba')('frc115', 'Scouting App', '0.1');
@@ -200,7 +202,12 @@ function tbaWebHook(request, response){
     if(data.message_type == 'match_score'){
         response.send(tbaMatchScore(data));
     }else if(data.message_type == 'schedule_updated'){
-        loadSchedule(data.message_data.event_key);
+        var event_key = data.message_data.event_key;
+        if(EVENTS.indexOf(event_key) == -1){
+            console.log('useless event: ' + event_key);
+            return;
+        }
+        loadSchedule();
         response.send('attempted updating schedule');
     }
 
@@ -220,6 +227,11 @@ function tbaMatchScore(data){
 
 function saveScore(data){
     var match = data.message_data.match.key;
+    var event_key = data.message_data.match.event_key;
+    if(EVENTS.indexOf(event_key) == -1){
+        console.log('bad event: ' + event_key);
+        return;
+    }
     ref.child('scores').child(match).set({
         b: data.message_data.match.alliances.blue.score,
         r: data.message_data.match.alliances.red.score,
