@@ -15,6 +15,7 @@ var firebase = require('firebase');
 var twilio = require('twilio')(TWILIO_SID, TWILIO_KEY);
 var wit = require('node-wit');
 var cloudinary = require('cloudinary');
+var moment = require('moment');
 
 cloudinary.config({
   cloud_name: 'theakhil',
@@ -598,7 +599,7 @@ function getTeamStats(team, event, callback){
             return;
         }
 
-        tba.getEventRankings('2015utwv', function(err, rankings_list){
+        tba.getEventRankings(event, function(err, rankings_list){
             for(var rank = 0; rank < rankings_list.length; rank++){
                 if(rankings_list[rank][1] == team){
                     var data = rankings_list[rank];

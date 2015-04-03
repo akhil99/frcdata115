@@ -11,6 +11,7 @@
     "cloudinary": "^1.1.2",
     "express": "^4.9.8",
     "firebase": "^2.2.3",
+    "moment": "^2.9.0",
     "node-wit": "^2.0.0",
     "tba": "0.0.1",
     "twilio": "^1.11.1"
