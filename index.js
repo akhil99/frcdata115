@@ -41,7 +41,7 @@ app.post('/load-teams', loadTeamsPOST);
 
 app.post('/load-sched', loadSchedulePOST);
 
-app.post('/img-save', saveImagesPOST);
+app.post('/save-images', saveImagesPOST);
 
 app.get('/team-matches', getTeamMatchesGET);
 
@@ -53,7 +53,7 @@ app.post('/sms-recvai', smsAI);
 
 app.post('/tba-webhook', tbaWebHook);
 
-app.use('/pitscout-view/', express.static(__dirname + '/public'));
+app.use('/pitview/', express.static(__dirname + '/public'));
 
 
 app.listen(app.get('port'), function() {
