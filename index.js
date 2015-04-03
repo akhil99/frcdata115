@@ -516,7 +516,7 @@ function getNextTeamMatch(team, event, callback){
                     ' (scores posted) is ' + latest, nextMatch, partners, opp);
                 }else{
                     callback('The next match for team ' + team + ' is ' + matchNo + ', with teams '
-                        + partners + ' and opposite alliance ' + opp '. The latest match to finish' +
+                        + partners + ' and opposite alliance ' + opp + '. The latest match to finish' +
                         ' (scores posted) is ' + latest, nextMatch, partners, opp);
                 }
             });
