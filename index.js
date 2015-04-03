@@ -512,10 +512,12 @@ function getNextTeamMatch(team, event, callback){
             getAlliancePartners(team, nextMatch, function(partners, opp){
                 if(partners == null){
                     callback('The next match for team ' + team + ' is ' + matchNo +
-                    ', but I couldn\'t find their alliance partners', nextMatch, partners, opp);
+                    ', but I couldn\'t find their alliance partners. The latest match to finish' +
+                    ' (scores posted) is ' + latest, nextMatch, partners, opp);
                 }else{
                     callback('The next match for team ' + team + ' is ' + matchNo + ', with teams '
-                        + partners + ' and opposite alliance ' + opp, nextMatch, partners, opp);
+                        + partners + ' and opposite alliance ' + opp '. The latest match to finish' +
+                        ' (scores posted) is ' + latest, nextMatch, partners, opp);
                 }
             });
         });
@@ -612,8 +614,8 @@ function getTeamStats(team, event, callback){
                     var tote = data[7];
                     var played = data[8];
                     var info = 'Info for team ' + team + ': ' +
-                        'Rank: ' + teamRank + 
-                        'Quals Avg: ' + qualAvg +
+                        'Rank: ' + teamRank +
+                        ', Quals Avg: ' + qualAvg +
                         ', Auton: ' + auto +
                         ', Container: ' + container +
                         ', Coop: ' + coop +
