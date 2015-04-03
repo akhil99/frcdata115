@@ -1,11 +1,65 @@
 body{
     color: #FFC107;
     background: #5E35B1;
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: 1.2em;
 }
 
-.mediaItem{
-    padding: 20px;
-    margin: 20px;
-    background: #7E57C2;
-    text-align: center;
+h1{
+    font-weight: 100;
+    font-size: 4em;
+}
+
+#pitmedia{
+    line-height: 0;
+
+    -webkit-column-count: 5;
+    -webkit-column-gap: 0px;
+    -moz-column-count: 5;
+    -moz-column-gap: 0px;
+    column-count: 5;
+    column-gap: 0px;
+}
+
+#pitmedia div{
+    width: 100%;
+    height: auto;
+    padding: 0px;
+    -webkit-column-break-inside: avoid;
+    break-inside: avoid;
+    text-align:center;
+}
+
+@media(max-width: 1200px){
+    #pitmedia{
+        -webkit-column-count: 4;
+        -moz-column-count: 4;
+        column-count: 4;
+    }
+}
+
+
+@media(max-width: 1000px){
+    #pitmedia{
+        -webkit-column-count: 3;
+        -moz-column-count: 3;
+        column-count: 3;
+    }
+}
+
+@media(max-width: 800px){
+    #pitmedia{
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+        column-count: 2;
+    }
+}
+
+@media(max-width: 400px){
+    #pitmedia{
+        -webkit-column-count: 1;
+        -moz-column-count: 1;
+        column-count: 1;
+    }
 }

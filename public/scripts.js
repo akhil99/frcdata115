@@ -6,7 +6,6 @@ function loadTeam(team){
 
         var url = img.cloudinary_url;
         if(url == null || url == ''){
-            console.log('cloudinary url not available');
             url = img.url;
         }
 
@@ -20,7 +19,6 @@ function loadAll(){
 
       var url = img.cloudinary_url;
       if(url == null || url == ''){
-          console.log('cloudinary url not available');
           url = img.url;
       }
 
@@ -33,9 +31,8 @@ function add(team, url, msg){
     var container = $('#pitmedia');
 
     var html =
-    '<div class ="mediaItem"><img src="' + url + '" width="450px"/>' +
-    '<h4 class="teamcaption">Team ' + team + '</h4><h4 class="caption">' + msg + '</h4></div>'
-
+    '<div><a href="' + url + '"><img src="' + url + '" width=225 alt="thumbnail" /></a><h4>' +
+        team + '</h4><p>' + msg + '</p></div>'
     container.append(html);
 }
 

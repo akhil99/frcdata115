@@ -37,9 +37,11 @@ app.get('/', function(request, response) {
 
 app.post('/load-scores', loadScoresPOST);
 
+app.post('/load-teams', loadTeamsPOST);
+
 app.post('/load-sched', loadSchedulePOST);
 
-app.post('/load-teams', loadTeamsPOST);
+app.post('/img-save', saveImagesPOST);
 
 app.get('/team-matches', getTeamMatchesGET);
 
@@ -53,7 +55,6 @@ app.post('/tba-webhook', tbaWebHook);
 
 app.use('/pitscout-view/', express.static(__dirname + '/public'));
 
-app.post('/img-save', saveImagesPOST);
 
 app.listen(app.get('port'), function() {
   console.log('HEY!!! Node app is running at localhost:' + app.get('port'));
@@ -118,7 +119,7 @@ function loadScoresPOST(request, res){
       for(var i in data){
         var match = data[i];
         var key = match.key;
-        if(match.alliances.blue.score != null){
+        if(match.alliances.blue.score != null &&  match.alliances.blue.score != -1){
           var blueScore = match.alliances.blue.score;
           var redScore = match.alliances.red.score;
           var breakdown = match.score_breakdown;
@@ -135,30 +136,53 @@ function loadScoresPOST(request, res){
 
 }
 
+function saveImagesPOST(request, response){
+    ref.child('pitscout/images').on('child_added', function(data){
+        if(data.val() == null){
+            response.send('error');
+            return;
+        }
+
+        var url = data.val().url;
+        var cloud = data.val().cloudinary_url;
+        if(url == null || url == '')return;
+        if(cloud != null && cloud != '')return;
+
+        cloudinary.uploader.upload(url, function(result) {
+            var newUrl = result.url;
+            console.log(data.ref().toString());
+            data.ref().update({
+                cloudinary_url: newUrl
+            });
+        });
+    });
+
+    response.send('attempted to save');
+}
+
 function getTeamMatchesGET(request, res){
     console.log('GET team match info');
 
-  var team = request.query.team;
-  var event = request.query.event;
+    var team = request.query.team;
+    var event = request.query.event;
 
-  console.log('team: ' + team + ', event: ' + event);
+    console.log('team: ' + team + ', event: ' + event);
 
-  if(event == null || team == null){
-      res.status(422).send('Missing event parameter');
-      return;
-  }
+    if(event == null || team == null){
+        res.status(422).send('Missing event parameter');
+        return;
+    }
 
-  if(team.indexOf('frc') === -1)team = 'frc' + team;
+    if(team.indexOf('frc') === -1)team = 'frc' + team;
 
-  getTeamMatches(team, event, function(matches){
-      if(matches.length == 0){
-          res.status(404).send('No matches found');
-      }else{
-          console.log(JSON.stringify(matches));
-          res.send(JSON.stringify(matches));
-      }
-  });
-
+    getTeamMatches(team, event, function(matches){
+        if(matches.length == 0){
+            res.status(404).send('No matches found');
+        }else{
+            console.log(JSON.stringify(matches));
+            res.send(JSON.stringify(matches));
+        }
+    });
 }
 
 function getNextTeamMatchGET(request, res){
@@ -200,15 +224,20 @@ function tbaWebHook(request, response){
     var data = JSON.parse(index[0]);
 
     if(data.message_type == 'match_score'){
-        response.send(tbaMatchScore(data));
+        var event_key = data.message_data.match.event_key;
+        if(EVENTS.indexOf(event_key) == -1){
+            console.log('bad event: ' + event_key);
+        }else{
+            response.send(tbaMatchScore(data));
+        }
     }else if(data.message_type == 'schedule_updated'){
         var event_key = data.message_data.event_key;
         if(EVENTS.indexOf(event_key) == -1){
             console.log('useless event: ' + event_key);
-            return;
+        }else{
+            loadSchedule();
+            response.send('attempted updating schedule');
         }
-        loadSchedule();
-        response.send('attempted updating schedule');
     }
 
 }
@@ -227,11 +256,6 @@ function tbaMatchScore(data){
 
 function saveScore(data){
     var match = data.message_data.match.key;
-    var event_key = data.message_data.match.event_key;
-    if(EVENTS.indexOf(event_key) == -1){
-        console.log('bad event: ' + event_key);
-        return;
-    }
     ref.child('scores').child(match).set({
         b: data.message_data.match.alliances.blue.score,
         r: data.message_data.match.alliances.red.score,
@@ -277,14 +301,8 @@ function respond(response, message) {
 }
 
 function smsNextMatch(team, event, response){
-    getNextTeamMatch(team, event, function(match){
-        if(match == null){
-            respond(response, 'No next match could be found');
-        }
-        else{
-            var matchNo = match.split('_')[1];
-            respond(response, 'The next match for team ' + team + ' is ' + matchNo);
-        }
+    getNextTeamMatch(team, event, function(res){
+        respond(response, res);
     });
 }
 
@@ -365,6 +383,41 @@ function getTeamMatches(team, event, callback){
     });
 }
 
+function getTeamLastScore(team, event, callback){
+
+    console.log('getTeamLastScore() ==> getting the last score for team ' + team + ' at ' + event);
+
+    getLastTeamMatch(team, event, function(lastMatch){
+        if(lastMatch == null){
+            callback('No matches found for team ' + team);
+            return;
+        }
+
+        var key = team + ':' + lastMatch;
+        ref.child('sched').orderByKey().equalTo(key).once('value', function(sched){
+            if(sched.val() == null){
+                callback('Error getting schedule. Let Akhil know so he can fix it!');
+                return;
+            }
+
+            var alliance = sched.child(key).val().alliance;
+
+            ref.child('scores').child(lastMatch).once('value', function(snapshot){
+
+                var match = lastMatch.split('_')[1];
+
+                if(snapshot.val() == null){
+                    callback('No scores found, but ' + team + '\'s last match was ' + match);
+                    return;
+                }
+                var score = snapshot.val()[alliance];
+                callback('Team ' + team + '\'s last match was ' + match + ', where they scored ' + score);
+
+            });
+        });
+    });
+}
+
 function getLastTeamMatch(team, event, callback){
     console.log('getLastTeamMatch() ==> Getting last match for team ' + team + ' at ' + event);
 
@@ -389,18 +442,27 @@ function getNextTeamMatch(team, event, callback){
     console.log('getNextTeamMatch() ==> Getting next match for team ' + team + ' at ' + event);
 
     getLatestMatch(event, function(latest){
+        if(latest == null){
+            callback('Error finding match data... Let Akhil know, so he can fix it!');
+            return;
+        }
         getTeamMatches(team, event, function(matches){
             var minDist = 6000;
-            var lastMatch = null;
+            var nextMatch = null;
             matches.forEach(function(match){
                 var dist = compare(latest, match);
                 //if this match hasn't happened yet
                 if(dist > 0 && dist < minDist){
                     minDist = dist;
-                    lastMatch = match;
+                    nextMatch = match;
                 }
             });
-            callback(lastMatch);
+
+            if(nextMatch == null){
+                callback('Whoops! There was an error getting the next match. Let Akhil know so he can fix it.');
+            }
+            var matchNo = nextMatch.split('_')[1];
+            callback('The next match for team ' + team + ' is ' + matchNo);
         });
     });
 }
@@ -414,41 +476,6 @@ function getLatestMatch(event, callback){
             return;
         }
         callback(data.val().lastMatch);
-    });
-}
-
-function getTeamLastScore(team, event, callback){
-
-    console.log('getTeamLastScore() ==> getting the last score for team ' + team + ' at ' + event);
-
-    getLastTeamMatch(team, event, function(lastMatch){
-        if(lastMatch == null){
-            callback('No matches found for team ' + team);
-            return;
-        }
-
-        var key = team + ':' + lastMatch;
-        ref.child('sched').orderByKey().equalTo(key).once('value', function(sched){
-            if(sched.val() == null){
-                callback('Error');
-                return;
-            }
-
-            var alliance = sched.child(key).val().alliance;
-
-            ref.child('scores').child(lastMatch).once('value', function(snapshot){
-                if(snapshot.val() == null){
-                    callback('No scores found');
-                    return;
-                }
-
-                var score = snapshot.val()[alliance];
-                var match = lastMatch.split('_')[1];
-                var info = 'Team ' + team + '\'s last match was ' + match
-                    + ', where they scored ' + score;
-                callback(info);
-            });
-        });
     });
 }
 
@@ -484,7 +511,7 @@ function getTeamStats(team, event, callback){
                     return;
                 }
             }
-            callback('Error getting data for team ' + team);
+            callback('Error getting stats for team ' + team);
         });
     });
 }
@@ -569,33 +596,4 @@ function getTeamAndComments(body) {
         team: null,
         msg: null
     }
-}
-
-function saveImagesPOST(request, response){
-    ref.child('pitscout/images').on('child_added', function(data){
-        if(data.val() == null){
-            response.send('error');
-            return;
-        }
-
-        var url = data.val().url;
-        var alt = data.val().new_url;
-        var cloud = data.val().cloudinary_url;
-        if(url == null || url == '')url = alt;
-        if(url == null || url == '')return;
-
-        data.ref().child('new_url').remove();
-
-        if(cloud != null && cloud != '')return;
-
-        cloudinary.uploader.upload(url, function(result) {
-            var newUrl = result.url;
-            console.log(data.ref().toString());
-            data.ref().update({
-                cloudinary_url: newUrl
-            });
-        });
-    });
-
-    response.send('attempted to reply');
 }
