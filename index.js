@@ -234,6 +234,7 @@ function tbaWebHook(request, response){
             console.log('bad event: ' + event_key);
         }else{
             response.send(tbaMatchScore(data));
+            sendUpdate();
         }
     }else if(data.message_type == 'schedule_updated'){
         var event_key = data.message_data.event_key;
@@ -270,14 +271,18 @@ function saveScore(data){
 }
 
 function sendUpdate(){
+    console.log('Checking to send update');
     var match = data.message_data.match.key;
     getLatestMatch(EVENT_DEFAULT, function(latest){
+        console.log('SendUpdate latest: ' + latest);
         getNextTeamMatch(115, EVENT_DEFAULT, function(text, next, part, opp){
+            console.log('SendUpdate next for 115: ' + text);
             if(next == null)return;
             else dist = compare(latest, next);
             if(dist < 4){
                 var matchNo = next.split('_')[1];
                 for(number in NUMBERS_DRIVE){
+                    console.log('Sending friendly reminder');
                     sendSMS(number, 'Just a friendly reminder: match ' + matchNo + ' is only ' + dist + ' matches away!');
                 }
             }
