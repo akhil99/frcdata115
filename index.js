@@ -315,7 +315,7 @@ function smsAI(request, response){
                      respond(response, 'Sorry, I did not understand what you were asking for');
                      return;
                  }
-                 smsGetMatchInfo(match, response);
+                 smsGetMatchInfo(match.value, response);
                  return;
              }
 
@@ -367,8 +367,8 @@ function smsGetTeamStats(team, event, response){
 }
 
 function smsGetMatchInfo(match, response){
-    match += EVENT_DEFAULT + '_';
-    getMatchInfo(match, function(red, blue){
+    var fullMatch = EVENT_DEFAULT + '_' + match;
+    getMatchInfo(fullMatch, function(red, blue){
         if(red == null || blue == null)respond(response, 'Couldn\'t find match info');
         else respond(response, 'Info for match ' + match + ': red alliance: ' + red + ', blue: ' + blue);
     });
