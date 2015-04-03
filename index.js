@@ -3,9 +3,10 @@ var TWILIO_SID = process.env.TWILIO_SID || '';
 var TWILIO_KEY = process.env.TWILIO_KEY || '';
 var TWILIO_NUMBER = '+14085121069';
 var CLOUDINARY_SECRET = process.env.CLOUDINARY_SECRET || '';
-var EVENT_DEFAULT = '2015casj';
+var NUMBERS_DRIVE = ['+14088568812'];
 
 var EVENTS = ['2015utwv', '2015casj'];
+var EVENT_DEFAULT = '2015casj';
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -195,9 +196,9 @@ function getNextTeamMatchGET(request, res){
         res.status(422).send('Missing event parameter');
         return;
     }
-    getNextTeamMatch(team, event, function(nextMatch){
-        if(nextMatch == null)res.status(404).send('No match found');
-        else res.send(nextMatch);
+    getNextTeamMatch(team, event, function(text, nextMatch, partners, opp){
+        if(text == null)res.status(404).send('No match found');
+        else res.send(text);
     });
 }
 
@@ -255,6 +256,7 @@ function tbaMatchScore(data){
         lastMatch: match
     });
     saveScore(data);
+    sendUpdate(data);
     return ('Updated matches');
 }
 
@@ -264,6 +266,22 @@ function saveScore(data){
         b: data.message_data.match.alliances.blue.score,
         r: data.message_data.match.alliances.red.score,
         breakdown: data.message_data.match.score_breakdown
+    });
+}
+
+function sendUpdate(){
+    var match = data.message_data.match.key;
+    getLatestMatch(EVENT_DEFAULT, function(latest){
+        getNextTeamMatch(115, EVENT_DEFAULT, function(text, next, part, opp){
+            if(next == null)return;
+            else dist = compare(latest, next);
+            if(dist < 4){
+                var matchNo = next.split('_')[1];
+                for(number in NUMBERS_DRIVE){
+                    sendSMS(number, 'Just a friendly reminder: match ' + matchNo + ' is only ' + dist + ' matches away!');
+                }
+            }
+        });
     });
 }
 
@@ -305,7 +323,7 @@ function respond(response, message) {
 }
 
 function smsNextMatch(team, event, response){
-    getNextTeamMatch(team, event, function(res){
+    getNextTeamMatch(team, event, function(res, next, partners, opp){
         respond(response, res);
     });
 }
@@ -441,10 +459,9 @@ function getLastTeamMatch(team, event, callback){
 
 function getNextTeamMatch(team, event, callback){
     console.log('getNextTeamMatch() ==> Getting next match for team ' + team + ' at ' + event);
-
     getLatestMatch(event, function(latest){
         if(latest == null){
-            callback('Error finding match data... Let Akhil know, so he can fix it!');
+            callback('Error finding match data... Let Akhil know, so he can fix it!', null, null, null);
             return;
         }
         getTeamMatches(team, event, function(matches){
@@ -460,7 +477,7 @@ function getNextTeamMatch(team, event, callback){
             });
 
             if(nextMatch == null){
-                callback('Whoops! There was an error getting the next match. Let Akhil know so he can fix it.');
+                callback('Whoops! There was an error getting the next match. Let Akhil know so he can fix it.', null, null, null);
             }
 
             var matchNo = nextMatch.split('_')[1];
@@ -468,15 +485,16 @@ function getNextTeamMatch(team, event, callback){
             getAlliancePartners(team, nextMatch, function(partners, opp){
                 if(partners == null){
                     callback('The next match for team ' + team + ' is ' + matchNo +
-                    ', but I couldn\'t find their alliance partners');
+                    ', but I couldn\'t find their alliance partners', nextMatch, partners, opp);
                 }else{
                     callback('The next match for team ' + team + ' is ' + matchNo + ', with teams '
-                        + partners + ' and opposite alliance ' + opp);
+                        + partners + ' and opposite alliance ' + opp, nextMatch, partners, opp);
                 }
             });
         });
     });
 }
+
 
 function getAlliancePartners(team, match, callback){
     ref.child('sched/' + team + ':' + match).once('value', function(data){
@@ -522,6 +540,7 @@ function getTeamStats(team, event, callback){
 
         if(data == null){
             callback('Error retrieving stats data from TBA. Note that it might not have been published yet.');
+            return;
         }
 
         var opr = data.oprs[team];
@@ -529,6 +548,7 @@ function getTeamStats(team, event, callback){
 
         if(opr == null || ccwm == null){
             callback('Error retrieving stats data from TBA. Note that it might not have been published yet.');
+            return;
         }
 
         tba.getEventRankings('2015utwv', function(err, rankings_list){
