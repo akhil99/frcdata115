@@ -3,7 +3,7 @@ var TWILIO_SID = process.env.TWILIO_SID || '';
 var TWILIO_KEY = process.env.TWILIO_KEY || '';
 var TWILIO_NUMBER = '+14085121069';
 var CLOUDINARY_SECRET = process.env.CLOUDINARY_SECRET || '';
-var EVENT_DEFAULT = '2015utwv';
+var EVENT_DEFAULT = '2015casj';
 
 var EVENTS = ['2015utwv', '2015casj'];
 
