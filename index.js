@@ -180,7 +180,7 @@ function getTeamMatchesGET(request, res){
             res.status(404).send('No matches found');
         }else{
             console.log(JSON.stringify(matches));
-            res.send(JSON.stringify(matches));
+            res.send(readableMatches(matches));
         }
     });
 }
@@ -211,6 +211,10 @@ function getLastTeamMatchGET(request, res){
         res.status(422).send('Missing event parameter');
         return;
     }
+
+    getTeamLastScore(team, event, function(toSay){
+        res.send(toSay);
+    });
 
 
 }
@@ -316,11 +320,8 @@ function smsTeamMatches(team, event, response){
     getTeamMatches(team, event, function(matches){
         if(matches.length == 0)respond(response, 'No matches could be found for team ' + team);
         else{
-            var matchNos = [];
-            matches.forEach(function(match){
-                    matchNos.push(match.split('_')[1]);
-            });
-            respond(response, 'Matches for team ' + team + ': ' + matchNos);
+            var formatted = readableMatches(matches);
+            respond(response, 'Matches for team ' + team + ': ' + formatted);
         }
     });
 }
@@ -389,7 +390,7 @@ function getTeamLastScore(team, event, callback){
 
     getLastTeamMatch(team, event, function(lastMatch){
         if(lastMatch == null){
-            callback('No matches found for team ' + team);
+            callback('No previous matches found for team ' + team);
             return;
         }
 
@@ -461,8 +462,43 @@ function getNextTeamMatch(team, event, callback){
             if(nextMatch == null){
                 callback('Whoops! There was an error getting the next match. Let Akhil know so he can fix it.');
             }
+
             var matchNo = nextMatch.split('_')[1];
-            callback('The next match for team ' + team + ' is ' + matchNo);
+
+            getAlliancePartners(team, nextMatch, function(partners, opp){
+                if(partners == null){
+                    callback('The next match for team ' + team + ' is ' + matchNo +
+                    ', but I couldn\'t find their alliance partners');
+                }else{
+                    callback('The next match for team ' + team + ' is ' + matchNo + ', with teams '
+                        + partners + ' and opposite alliance ' + opp);
+                }
+            });
+        });
+    });
+}
+
+function getAlliancePartners(team, match, callback){
+    ref.child('sched/' + team + ':' + match).once('value', function(data){
+        if(data.val() == null){
+            callback(null);
+            return;
+        }
+        var alliance = data.val().alliance;
+        var teams = [];
+        var opp = [];
+
+        ref.child('sched').orderByChild('match').equalTo(match).once('value', function(snapshot){
+            snapshot.forEach(function(child){
+                var data = child.val();
+                if(data == null)return;
+                var all = data.alliance;
+                if(all == alliance){
+                    teams.push(data.team);
+                }else opp.push(data.team);
+            });
+
+            callback(teams, opp);
         });
     });
 }
@@ -596,4 +632,24 @@ function getTeamAndComments(body) {
         team: null,
         msg: null
     }
+}
+
+function readableMatches(matches){
+    var finished = "";
+
+    while(matches.length > 0){
+        var minPos = 0;
+        console.log(matches);
+        for(var i = 1; i < matches.length; i++){
+            var minDist = compare('2015_qm0', matches[minPos]);
+            if(compare('2015_qm0', matches[i]) < minDist){
+                minPos = i;
+            }
+        }
+        var match = matches.splice(minPos, 1);
+        match = (match + '').split('_')[1];
+        finished += match;
+        if(matches.length > 0)finished += ', ';
+    }
+    return finished;
 }
