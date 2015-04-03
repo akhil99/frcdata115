@@ -351,7 +351,7 @@ function smsLastMatch(team, event, response){
 }
 
 function smsTeamMatches(team, event, response){
-    getTeamMatches(team, event, function(matches){l
+    getTeamMatches(team, event, function(matches){
         if(matches.length == 0)respond(response, 'No matches could be found for team ' + team);
         else{
             var formatted = readableMatches(matches);
