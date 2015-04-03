@@ -380,6 +380,7 @@ function loadSchedule(event){
         for(var i in data){
           var match = data[i];
           var matchNo = match.key;
+          var timeString = (new Date(match.time)).toTimeString();
           var blue = match.alliances.blue.teams;
           var red = match.alliances.red.teams;
           for(var b in blue){
@@ -390,6 +391,7 @@ function loadSchedule(event){
                 event: event,
                 match: matchNo,
                 team: team,
+                time: timeString
             });
           }
           for(var r in red){
@@ -400,6 +402,7 @@ function loadSchedule(event){
                 event: event,
                 match: matchNo,
                 team: team,
+                time: timeString
             });
           }
         }
