@@ -315,7 +315,7 @@ function smsAI(request, response){
                      respond(response, 'Sorry, I did not understand what you were asking for');
                      return;
                  }
-                 smsGetMatchInfo(match.value, response);
+                 smsGetMatchInfo(match[0].value, response);
                  return;
              }
 
