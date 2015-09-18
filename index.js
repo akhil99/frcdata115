@@ -5,8 +5,8 @@ var TWILIO_NUMBER = '+14085121069';
 var CLOUDINARY_SECRET = process.env.CLOUDINARY_SECRET || '';
 var NUMBERS_DRIVE = ['+14088568812'];
 
-var EVENTS = ['2015utwv', '2015casj'];
-var EVENT_DEFAULT = '2015casj';
+var EVENTS = ['2015utwv', '2015casj', '2015cc'];
+var EVENT_DEFAULT = '2015cc';
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -23,7 +23,7 @@ cloudinary.config({
   api_secret: CLOUDINARY_SECRET
 });
 
-var ref = new firebase('https://scouting115.firebaseio.com');
+var ref = new firebase('https://teamdata.firebaseio.com');
 
 var app = express();
 app.use(bodyParser.urlencoded({
