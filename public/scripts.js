@@ -1,4 +1,4 @@
-var ref = new Firebase('https://scouting115.firebaseio.com/');
+var ref = new Firebase('https://teamdata.firebaseio.com/');
 
 function loadTeam(team){
     ref.child('pitscout/images').orderByChild('team').equalTo(team).on('child_added', function(snapshot) {
