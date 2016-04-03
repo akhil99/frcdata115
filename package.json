@@ -1,23 +1,24 @@
 {
-  "name": "frcdata115",
+  "name": "node-js-getting-started",
   "version": "0.1.2",
-  "description": "MVRT Data Input",
+  "description": "A sample Node.js app using Express 4",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "body-parser": "^1.12.2",
-    "cloudinary": "^1.1.2",
-    "express": "^4.9.8",
+    "express": "~4.9.x",
     "firebase": "^2.2.3",
-    "moment": "^2.9.0",
     "node-wit": "^2.0.0",
-    "tba": "0.0.1",
-    "twilio": "^1.11.1"
+    "thebluealliance": "^1.1.1"
   },
   "engines": {
     "node": "0.10.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heroku/node-js-getting-started"
   },
   "keywords": [
     "node",
